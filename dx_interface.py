@@ -15,6 +15,9 @@ def _discretize_geo(lat, lon):
         lon = lon - 0.125
     return (int((lat+60.0)/0.25), int((lon+180.0)/0.25))
 
+def reverse_geo(lat, lon):
+    return((lat * .25) - 59.875), ((lon * .25) - 179.875)
+
 def _build_var_name(variable, model = None, scenario = None):
     var_name = f'v:{variable}'
     if model:
@@ -45,7 +48,9 @@ class DXInterface:
         var_name = _build_var_name(variable, model, scenario)
         version = _get_version(start_date, end_date)
         data = self.api.GetNDArray(var_name, version, lb, ub, nspace = 'cmip6-planetary')
-        return(data)
+        lat = [(l * .25) - 59.875 for l in range(lb[0], ub[0]+1)]
+        lon = [(l * .25) - 179.875 for l in range(lb[1], ub[1]+1)]
+        return(data, lat, lon)
 
     def query(self, source, **kwargs):
         if source == 'planetary-gddp':
@@ -88,7 +93,7 @@ if __name__ == "__main__":
 		start_date = '1982-11-28',
 		end_date = '1982-11-29',
 		geo_lb = (38.9,-77.0),
-		geo_ub = (40.7,-74.0))
+		geo_ub = (40.7,-74.0))[0]
     print(data.shape)
     print(data)
     def pressurefromelev(elev):
