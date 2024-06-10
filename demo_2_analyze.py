@@ -21,7 +21,7 @@ pressure = psfc_chunk
 client = DXInterface('20.84.58.28:8000')
 
 # Write the custom pressure variable
-client.write(variable = 'pressure'
+client.write(variable = 'pressure',
 	    model = 'mymodel',
 	    geo_resolution = (0.25,0.25),
         projection = 'wgs84',

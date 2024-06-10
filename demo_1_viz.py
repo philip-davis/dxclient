@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from dx_interface import DXInterface
 
+# Establish client connection
 client = DXInterface('20.84.58.28:8000')
+
+# Query Temperature data - latitude and longitude coordinates are provided that align with the grid
 data, lat, lon = client.query(source = 'planetary-gddp',
 		variable = 'tas',
 		model = 'ACCESS-ESM1-5',
@@ -12,7 +15,7 @@ data, lat, lon = client.query(source = 'planetary-gddp',
 		geo_lb = (38.9,-77.0),
 		geo_ub = (40.7,-74.0))
 
-
+# Plot a contour map
 fig = plt.figure(num=None, figsize=(7, 7) ) 
 m = Basemap(projection='cyl', llcrnrlon=-77, llcrnrlat=38.9, urcrnrlon=-74, urcrnrlat=40.7, resolution='i')
 x, y = m(*np.meshgrid(lon,lat))
