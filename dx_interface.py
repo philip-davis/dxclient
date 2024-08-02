@@ -18,12 +18,14 @@ def _discretize_geo(lat, lon):
 def reverse_geo(lat, lon):
     return((lat * .25) - 59.875), ((lon * .25) - 179.875)
 
-def _build_var_name(variable, model = None, scenario = None):
+def _build_var_name(variable, model = None, scenario = None, quality = None):
     var_name = f'v:{variable}'
     if model:
         var_name = var_name + f',m:{model}'
     if scenario:
         var_name = var_name + f',s:{scenario}'
+    if quality:
+        var_name = var_name + f',q:{quality}'
     return var_name
 
 def _get_version(start_date, end_date):
@@ -41,11 +43,11 @@ class DXInterface:
        self.api = DXDataAPI(socket)
 
 
-    def _query_pc(self, variable, start_date, end_date, model = None, scenario = None, geo_lb = (-60.0,-180.0), geo_ub = (90.0,180.0)):
+    def _query_pc(self, variable, start_date, end_date, model = None, scenario = None, quality = None, geo_lb = (-60.0,-180.0), geo_ub = (90.0,180.0)):
         lb = _discretize_geo(*geo_lb)
         ub = _discretize_geo(*geo_ub)
         assert lb[0] <= ub[0] and lb[1] <= ub[1]
-        var_name = _build_var_name(variable, model, scenario)
+        var_name = _build_var_name(variable, model, scenario, quality)
         version = _get_version(start_date, end_date)
         data = self.api.GetNDArray(var_name, version, lb, ub, nspace = 'cmip6-planetary')
         lat = [(l * .25) - 59.875 for l in range(lb[0], ub[0]+1)]
