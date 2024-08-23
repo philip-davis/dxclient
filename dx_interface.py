@@ -59,7 +59,7 @@ class DXInterface:
             return(self._query_pc(**kwargs))
 
     def write(self, variable, model, data, **kwargs):
-        self.api.PutNDArray(f'v:{variable},m:{model}', 0, (0,0), data)
+        self.api.PutNDArray(data, f'v:{variable},m:{model}', 0, (0,0))
 
     def _build_arg_pc(variable, start_date, end_date, model = None, scenario = None, geo_lb = (-60.0,-180.0), geo_ub = (90.0,180.0)):
         lb = _discretize_geo(*geo_lb)

@@ -54,6 +54,10 @@ class DXDataAPI:
 
     def _get_url_content(self, url):
         response = self._get(url)
+        if response.status_code == 404:
+            return(None)
+        if not response.ok:
+            raise RuntimeError(f'request to server failed with {response.status_code}.')
         return(json.loads(response.content))
 
     def GetNDArray(self, name, version, lb, ub, nspace = None):
@@ -62,6 +66,10 @@ class DXDataAPI:
         if nspace:
             url = url + f'?namespace={nspace}'
         response = self._post_json(url, box)
+        if response.status_code == 404:
+            return None
+        if not response.ok:
+            raise RuntimeError(f'request to server failed with {response.status_code}.')
         dims = tuple([int(x) for x in response.headers['x-ds-dims'].split(',')])
         tag = int(response.headers['x-ds-tag'])
         dtype = np.sctypeDict[tag]
@@ -75,7 +83,9 @@ class DXDataAPI:
         url = f'dspaces/obj/{name}/{version}?element_size={arr.itemsize}&element_type={arr.dtype.num}'
         if nspace:
             url = url + f'&namespace={nspace}'
-        result = self._put(url, data, files)
+        response = self._put(url, data, files)
+        if not response.ok:
+            raise RuntimeError(f'request to server failed with {response.status_code}.')
     
     def Exec(self, args, fn):
         objs = []
@@ -91,6 +101,10 @@ class DXDataAPI:
         files = {'fn': dill.dumps(fn)}
         url = f'dspaces/exec/'
         response = self._post(url, data, files)
+        if response.status_code == 404:
+            return(None)
+        if not response.ok:
+            raise RuntimeError(f'request to server failed with {response.status_code}.')
         return(dill.loads(response.content))
 
     def GetVars(self):
@@ -102,6 +116,10 @@ class DXDataAPI:
     def Register(self, type, name, data):
         url = f'dspaces/register/{type}/{name}'
         response = self._post(url, json.dumps(data))
+        if not response.ok:
+            content = json.loads(response.content)
+            err_msg = content['detail']
+            raise RuntimeError(f'request to server failed with {response.status_code}: {err_msg}.')
         handle_dict = json.loads(response.content)
         return(DSRegHandle(**handle_dict))  
 
